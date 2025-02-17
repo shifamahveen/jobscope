@@ -1,104 +1,112 @@
-const fetch = require('node-fetch');
-const Application = require('../models/applicationModel');
-const { log } = require('console');
-const db = require('../config/db');
-const mailService = require('../services/mailService');
-
-const apiUrl = 'https://jobs-api14.p.rapidapi.com/v2/list?query=Web%20Developer&location=United%20States&autoTranslateLocation=true&remoteOnly=false&employmentTypes=fulltime%3Bparttime%3Bintern%3Bcontractor';
-const apiOptions = {
-  method: 'GET',
-  headers: {
-    'x-rapidapi-key': 'ea86ec0756msh17e532df1e1c9c9p170c20jsnebad0933d91c',
-    'x-rapidapi-host': 'jobs-api14.p.rapidapi.com',
-  },
-};
+const db = require('../config/db');  
 
 const jobController = {
-  getJobs: async (req, res) => {
-    try {
-      const response = await fetch(apiUrl, apiOptions);
-      const data = await response.json();
-      res.render('jobs', { jobs: data.jobs, user: req.session.user });
-    } catch (error) {
-      console.error('Error fetching jobs:', error);
-      res.status(500).send('Error fetching jobs');
-    }
+  getJobs: (req, res) => {
+    db.query('SELECT id, title, description, image, salary, location, company FROM jobs ORDER BY created_at DESC', (err, jobs) => {
+      if (err) {
+        return res.status(500).send('Error fetching jobs');
+      }
+      res.render('jobs/list', { jobs, user: req.session.user });
+    });
   },
 
-  getJobDetails: async (req, res) => {
-    try {
-      const jobId = req.params.id;
-      const response = await fetch(apiUrl, apiOptions);
-      const data = await response.json();
-      const job = data.jobs.find((job) => job.id === jobId);
-      res.render('jobDetails', { job , user: req.session.user});
-    } catch (error) {
-      console.error('Error fetching job details:', error);
-      res.status(500).send('Error fetching job details');
-    }
+  getCreateJob: (req, res) => {
+    res.render('jobs/create', {user: req.session.user});
+  },  
+
+  createJob: (req, res) => {
+    const { title, description, image, salary, location, company } = req.body;
+    const imageUrl = image ? image : null;
+    db.query('INSERT INTO jobs (title, description, image, salary, location, company) VALUES (?, ?, ?, ?, ?)', [title, description, imageUrl, salary, location, company || null], (err) => {
+      if (err) {
+        return res.status(500).send('Error creating job');
+      }
+      res.redirect('/');
+    });
+  },
+
+  getEditJob: (req, res) => {
+    db.query('SELECT * FROM jobs WHERE id = ?', [req.params.id], (err, jobs) => {
+      if (err) {
+        console.error('Error fetching job:', err);
+        return res.status(500).send('Error fetching job');
+      }
+      if (jobs.length === 0) return res.status(404).send('Job not found');
+      res.render('jobs/edit', { job: jobs[0], user: req.session.user });
+    });
+  },
+
+  updateJob: (req, res) => {
+    const { title, description, image, location, salary, company } = req.body;
+    db.query('UPDATE jobs SET title = ?, description = ?, location = ?, salary = ?, image = ?, company=? WHERE id = ?', [title, description, location, salary, image, company, req.params.id], (err) => {
+      if (err) {
+        return res.status(500).send('Error updating job');
+      }
+      res.redirect('/');
+    });
+  },
+
+  deleteJob: (req, res) => {
+    db.query('DELETE FROM jobs WHERE id = ?', [req.params.id], (err) => {
+      if (err) {
+        return res.status(500).send('Error deleting job');
+      }
+      res.redirect('/');
+    });
+  },
+
+  getJobDetails: (req, res) => {
+    const jobId = req.params.id;
+    db.query('SELECT * FROM jobs WHERE id = ?', [jobId], (err, jobs) => {
+      if (err) {
+        return res.status(500).send('Error fetching job details');
+      }
+      if (jobs.length === 0) return res.status(404).send('Job not found');
+      res.render('jobDetails', { job: jobs[0], user: req.session.user });
+    });
   },
 
   getApplicationPage: (req, res) => {
     const jobId = req.params.id;
-    res.render('application', { job: { id: jobId, title: 'Web Developer' }, user: req.session.user });
+    db.query('SELECT title FROM jobs WHERE id = ?', [jobId], (err, job) => {
+      if (err) {
+        return res.status(500).send('Error fetching job title');
+      }
+      res.render('application', { job: job[0], user: req.session.user, jobId });
+    });
   },
 
   submitApplication: (req, res) => {
-    const { jobId, name: userName, email: userEmail, phone, gender, graduation } = req.body;
-
-    // Validate all required fields are present
-    if (!jobId || !userName || !userEmail || !phone || !gender || !graduation) {
-      return res.redirect('/application-form?error=All fields are required.');
-    }
-
-    // Get job title and company from the database or your job data source
-    const jobTitle = "Sample Job Title"; // Replace this with actual logic to fetch the job title based on jobId
-    const companyName = "Sample Company"; // Replace this with actual logic to fetch the company name
-
-    // Prepare the SQL query to insert the application into the database
+    const { name, email, phone, gender, graduation, jobId } = req.body;
+    
     const query = `
       INSERT INTO applications (jobId, userName, userEmail, phone, gender, graduation)
       VALUES (?, ?, ?, ?, ?, ?)
     `;
     
-    // Execute the query with the provided data
-    db.query(query, [jobId, userName, userEmail, phone, gender, graduation], async (err, result) => {
+    db.query(query, [jobId, name, email, phone, gender, graduation], (err, result) => {
       if (err) {
-        console.error('Error saving application:', err);
-        return res.redirect('/application-form?error=Error saving application.');
+        console.error('Error inserting application:', err);
+        return res.status(500).send('Internal Server Error');
       }
-
-      // Send confirmation email
-      try {
-        await mailService.sendThresholdNotification(userEmail, jobTitle, companyName);
-      } catch (emailError) {
-        console.error('Error sending email:', emailError);
-        return res.redirect('/application-form?error=Error sending confirmation email.');
-      }
-
-      // Redirect to the homepage with a success message
-      return res.redirect('/?success=Application submitted successfully!');
-    }) 
+      
+      res.redirect(`/jobs/${jobId}`);
+    });
   },
 
   getApplications: (req, res) => {
-    // Check if the user has admin role
     if (req.session.user.role !== 'admin') {
       return res.redirect('/');
     }
-  
-    // Query to fetch all applications
-    const query = 'SELECT * FROM applications';
-  
-    db.query(query, (err, applications) => {
+
+    db.query('SELECT * FROM applications', (err, applications) => {
       if (err) {
         console.error('Error fetching applications:', err);
         return res.status(500).send('Error fetching applications');
       }
-  
-      // Render the admin applications page
+
       res.render('applications', { applications, user: req.session.user });
-    })
+    });
   }
 };
 

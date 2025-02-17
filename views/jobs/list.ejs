@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Jobs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <nav class="bg-teal-800 p-4 py-2 fixed z-0 w-full mb-40 top-0">
+    <div class="max-w-screen-xl p-2 sm:px-16 mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <a href="/" class="text-white text-lg font-semibold flex items-center bg-white p-2 space-x-2 rounded">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkXihGXJM9cuLB9CJ0utK5kqx9YctTG9Zju7mlX9XrOaaNfUphxrnSXOcxvwZQNoc7fK4&usqp=CAU" width="30px" alt="">
+            <span class="text-black text-lg">JobScope</span>
+        </a>
+        </div>
+        <div class="hidden md:flex items-center space-x-4 text-lg">
+            <a href="/" class="text-gray-300 hover:text-white">Home</a>
+            <% if (user && user.role !== 'user') { %>  
+              <a href="/admin/applications" class="text-gray-300 hover:text-white">Admin</a>
+            <% } %>
+            <a href="/profile" class="text-gray-300 hover:text-white">Profile</a>
+            <a href="/logout" class="text-gray-300 hover:text-white">Logout</a>
+        </div>
+        <div class="md:hidden">
+            <button id="menu-toggle" class="text-gray-300 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+  </nav>
+
+  <div class="max-w-screen-xl px-16 p-4 mx-auto my-10">
+    <div class="flex mt-10  justify-between items-center">
+        <h1 class="text-2xl font-semibold my-4 mt-10">Job Listings</h1>
+        <a href="/job/create" class="bg-green-500 text-white px-4 py-2 rounded mb-4 flex items-center space-x-2 w-fit ms-auto">
+            <svg class="w-5 me-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M13 4H8.8C7.11984 4 6.27976 4 5.63803 4.32698C5.07354 4.6146 4.6146 5.07354 4.32698 5.63803C4 6.27976 4 7.11984 4 8.8V15.2C4 16.8802 4 17.7202 4.32698 18.362C4.6146 18.9265 5.07354 19.3854 5.63803 19.673C6.27976 20 7.11984 20 8.8 20H15.2C16.8802 20 17.7202 20 18.362 19.673C18.9265 19.3854 19.3854 18.9265 19.673 18.362C20 17.7202 20 16.8802 20 15.2V11" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M4 16L8.29289 11.7071C8.68342 11.3166 9.31658 11.3166 9.70711 11.7071L13 15M13 15L15.7929 12.2071C16.1834 11.8166 16.8166 11.8166 17.2071 12.2071L20 15M13 15L15.25 17.25" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M18.5 3V5.5M18.5 8V5.5M18.5 5.5H16M18.5 5.5H21" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+            Create Job</a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mb-6 text-center">
+        <input 
+          type="text" 
+          id="searchBar" 
+          placeholder="Search for jobs..." 
+          class="p-2 border border-gray-300 rounded w-full"
+          oninput="filterJobs()"
+        >
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10" id="jobsContainer">
+      <% jobs.forEach((job) => { %>
+        <div class="job-card bg-white shadow-md rounded-lg overflow-hidden" data-title="<%= job.title.toLowerCase() %>">
+            <div class="flex items-center justify-between space-x-4 bg-gray-200 p-4">
+                <div class="flex space-x-2 items-center">
+                    <img 
+                      src="<%= job.image || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0X2Q3ryxWPnu2SSVJOrQEzpLaWclFYYOoBA&s' %>" 
+                      alt="<%= job.title %>" 
+                      class="w-10 h-10 p-2 rounded-full shadow bg-white"
+                    >
+                    <h2 class="text-xl font-semibold truncate"><%= job.title %></h2>
+                  </div>
+                  <div class="flex space-x-1 items-center">
+                    <a href="/jobs/edit/<%= job.id %>" class="bg-white hover:bg-gray-200 duration-300 p-1.5 rounded mr-2 py-2">
+                      <svg class="w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M20.8477 1.87868C19.6761 0.707109 17.7766 0.707105 16.605 1.87868L2.44744 16.0363C2.02864 16.4551 1.74317 16.9885 1.62702 17.5692L1.03995 20.5046C0.760062 21.904 1.9939 23.1379 3.39334 22.858L6.32868 22.2709C6.90945 22.1548 7.44285 21.8693 7.86165 21.4505L22.0192 7.29289C23.1908 6.12132 23.1908 4.22183 22.0192 3.05025L20.8477 1.87868ZM18.0192 3.29289C18.4098 2.90237 19.0429 2.90237 19.4335 3.29289L20.605 4.46447C20.9956 4.85499 20.9956 5.48815 20.605 5.87868L17.9334 8.55027L15.3477 5.96448L18.0192 3.29289ZM13.9334 7.3787L3.86165 17.4505C3.72205 17.5901 3.6269 17.7679 3.58818 17.9615L3.00111 20.8968L5.93645 20.3097C6.13004 20.271 6.30784 20.1759 6.44744 20.0363L16.5192 9.96448L13.9334 7.3787Z" fill="#923a69"></path> </g></svg>
+                    </a>
+                    <button onclick="confirmDelete(<%= job.id %>, '<%= csrfToken %>')" class="bg-white hover:bg-gray-200 duration-300 p-1.5 rounded">
+                      <svg class="w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 7H20" stroke="#5ea0b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6 10L7.70141 19.3578C7.87432 20.3088 8.70258 21 9.66915 21H14.3308C15.2974 21 16.1257 20.3087 16.2986 19.3578L18 10" stroke="#5ea0b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 5C9 3.89543 9.89543 3 10.9999 3H13C14.1045 3 15 3.89543 15 5H9Z" stroke="#5ea0b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                    </button>
+                  </div>
+            </div>
+          
+          <p class="text-sm text-gray-500 mt-2 px-6 py-4">
+            <%= job.description.split(' ').slice(0, 20).join(' ') %><%= job.description.split(' ').length > 20 ? '...' : '' %>
+          </p>
+          <div class="mt-4 px-6 py-4">
+            <p class="text-gray-700 font-semibold">Company: <%= job.company %></p>
+            <p class="text-gray-700 font-semibold">Location: <%= job.location %></p>
+            <p class="text-gray-700 font-semibold">Salary: <%= job.salary %></p>
+            <a href="/jobs/<%= job.id %>" class="block my-4 bg-rose-600 text-white px-6 py-2 rounded w-fit text-start hover:bg-rose-700">Read more</a>
+          </div>
+          
+        </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <footer class="bg-teal-800 p-4 fixed z-0 w-full bottom-0 text-white text-lg text-center ">
+    &#169; JobScope
+  </footer>
+
+  <script>
+    function filterJobs() {
+      const searchQuery = document.getElementById('searchBar').value.toLowerCase();
+      const jobCards = document.querySelectorAll('.job-card');
+      jobCards.forEach(card => {
+        const title = card.getAttribute('data-title').toLowerCase();
+        if (title.includes(searchQuery)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
