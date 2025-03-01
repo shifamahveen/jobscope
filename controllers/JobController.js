@@ -57,12 +57,29 @@ const jobController = {
 
   getJobDetails: (req, res) => {
     const jobId = req.params.id;
+    const userEmail = req.session.user?.email;
+
+    if (!userEmail) {
+        return res.status(401).send('Unauthorized: Please log in to view job details');
+    }
+
     db.query('SELECT * FROM jobs WHERE id = ?', [jobId], (err, jobs) => {
-      if (err) {
-        return res.status(500).send('Error fetching job details');
-      }
-      if (jobs.length === 0) return res.status(404).send('Job not found');
-      res.render('jobDetails', { job: jobs[0], user: req.session.user });
+        if (err) {
+            return res.status(500).send('Error fetching job details');
+        }
+        if (jobs.length === 0) return res.status(404).send('Job not found');
+
+        const job = jobs[0];
+
+        // Check if the user has already applied
+        db.query('SELECT * FROM applications WHERE jobId = ? AND userEmail = ?', [jobId, userEmail], (err, applications) => {
+            if (err) {
+                return res.status(500).send('Error checking application status');
+            }
+
+            const hasApplied = applications.length > 0;
+            res.render('jobDetails', { job, hasApplied, user: req.session.user });
+        });
     });
   },
 

@@ -45,8 +45,14 @@
       <p class="text-gray-600 mb-4"><%= job.description %></p>
       <p class="text-gray-800"><strong>Company:</strong> <%= job.company %></p>
       <p class="text-gray-800"><strong>Location:</strong> <%= job.location %></p>
-      <a href="/apply/<%= job.id %>" class="block mt-4 bg-rose-600 text-white px-6 py-2 rounded w-fit text-start hover:bg-rose-700">Apply Now</a>
-    </div>
+      <% if (!hasApplied) { %>
+          <a href="/apply/<%= job.id %>" class="block mt-4 bg-rose-600 text-white px-6 py-2 rounded w-fit text-start hover:bg-rose-700">
+              Apply Now
+          </a>
+      <% } else { %>
+          <p class="mt-4 text-green-600 font-semibold">You have already applied for this job. We will get back to you after careful consideration.</p>
+      <% } %>
+        </div>
   </div>
 
   <footer class="bg-teal-800 p-4 fixed z-0 w-full bottom-0 text-white text-lg text-center ">
