@@ -43,6 +43,18 @@ module.exports = db;
 
 ### 3️⃣ Setup Database  
 ```sh  
+-- Create the 'jobs' table
+CREATE TABLE jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    image VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    location VARCHAR(100) NULL,
+    salary FLOAT NULL,
+    company VARCHAR(100) NULL
+);
+
 -- Create the 'applications' table  
 CREATE TABLE applications (  
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,  
