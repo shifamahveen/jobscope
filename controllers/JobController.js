@@ -1,49 +1,75 @@
 const db = require('../config/db');  
+const path = require('path');
+const fs = require('fs'); 
+const { getRecommendedJobs } = require('../services/jobService');
 
 const jobController = {
-  getJobs: (req, res) => {
-    db.query('SELECT id, title, description, image, salary, location, company FROM jobs ORDER BY created_at DESC', (err, jobs) => {
-      if (err) {
-        return res.status(500).send('Error fetching jobs');
-      }
-      res.render('jobs/list', { jobs, user: req.session.user });
-    });
-  },
+    getJobs: (req, res) => {
+      db.query(
+        'SELECT id, title, description, image, salary, location, company FROM jobs ORDER BY created_at DESC',
+        async (err, jobs) => {
+          if (err) {
+            console.error('Error fetching jobs:', err);
+            return res.status(500).send('Error fetching jobs');
+          }
+  
+          try {
+            const recommendedJobs = await getRecommendedJobs();
+            res.render('jobs/list', { jobs, recommendedJobs, user: req.session.user });
+          } catch (error) {
+            console.error('Error fetching recommended jobs:', error);
+            res.render('jobs/list', { jobs, recommendedJobs: [], user: req.session.user });
+          }
+        }
+      );
+    },
 
   getCreateJob: (req, res) => {
     res.render('jobs/create', {user: req.session.user});
   },  
 
   createJob: (req, res) => {
-    const { title, description, image, salary, location, company } = req.body;
-    const imageUrl = image ? image : null;
-    db.query('INSERT INTO jobs (title, description, image, salary, location, company) VALUES (?, ?, ?, ?, ?)', [title, description, imageUrl, salary, location, company || null], (err) => {
-      if (err) {
-        return res.status(500).send('Error creating job');
-      }
-      res.redirect('/');
-    });
+    const { title, description, image, salary, location, company, skills } = req.body;
+    const imageUrl = image && image.trim() !== "" ? image : null;
+    const companyName = company && company.trim() !== "" ? company : null;
+
+    db.query(
+        'INSERT INTO jobs (title, description, image, salary, location, company, skills) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [title, description, imageUrl, salary, location, companyName, skills],
+        (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Error creating job');
+            }
+            res.redirect('/');
+        }
+    );
   },
 
   getEditJob: (req, res) => {
-    db.query('SELECT * FROM jobs WHERE id = ?', [req.params.id], (err, jobs) => {
-      if (err) {
-        console.error('Error fetching job:', err);
-        return res.status(500).send('Error fetching job');
-      }
-      if (jobs.length === 0) return res.status(404).send('Job not found');
-      res.render('jobs/edit', { job: jobs[0], user: req.session.user });
-    });
+      db.query('SELECT * FROM jobs WHERE id = ?', [req.params.id], (err, jobs) => {
+          if (err) {
+              console.error('Error fetching job:', err);
+              return res.status(500).send('Error fetching job');
+          }
+          if (jobs.length === 0) return res.status(404).send('Job not found');
+          res.render('jobs/edit', { job: jobs[0], user: req.session.user });
+      });
   },
 
   updateJob: (req, res) => {
-    const { title, description, image, location, salary, company } = req.body;
-    db.query('UPDATE jobs SET title = ?, description = ?, location = ?, salary = ?, image = ?, company=? WHERE id = ?', [title, description, location, salary, image, company, req.params.id], (err) => {
-      if (err) {
-        return res.status(500).send('Error updating job');
-      }
-      res.redirect('/');
-    });
+      const { title, description, image, location, salary, company, skills } = req.body;
+      
+      db.query(
+          'UPDATE jobs SET title = ?, description = ?, location = ?, salary = ?, image = ?, company = ?, skills = ? WHERE id = ?',
+          [title, description, location, salary, image, company, skills, req.params.id],
+          (err) => {
+              if (err) {
+                  return res.status(500).send('Error updating job');
+              }
+              res.redirect('/');
+          }
+      );
   },
 
   deleteJob: (req, res) => {
@@ -94,21 +120,41 @@ const jobController = {
   },
 
   submitApplication: (req, res) => {
-    const { name, email, phone, gender, graduation, jobId } = req.body;
-    
-    const query = `
-      INSERT INTO applications (jobId, userName, userEmail, phone, gender, graduation)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    
-    db.query(query, [jobId, name, email, phone, gender, graduation], (err, result) => {
-      if (err) {
-        console.error('Error inserting application:', err);
-        return res.status(500).send('Internal Server Error');
+      const { name, email, phone, gender, graduation, jobId, skills } = req.body;
+      const resumeFile = req.files?.resume; // Get the uploaded file
+
+      if (!resumeFile) {
+          return res.status(400).send("Resume file is required.");
       }
-      
-      res.redirect(`/jobs/${jobId}`);
-    });
+
+      const uploadDir = path.join(__dirname, '../uploads');
+      if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const resumeFilename = `${Date.now()}_${resumeFile.name}`;
+      const resumePath = path.join(uploadDir, resumeFilename);
+
+      resumeFile.mv(resumePath, (err) => {
+          if (err) {
+              console.error("Error saving file:", err);
+              return res.status(500).send("Error saving resume file.");
+          }
+
+          const query = `
+            INSERT INTO applications (jobId, userName, userEmail, phone, gender, graduation, skills, resume)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `;
+
+          db.query(query, [jobId, name, email, phone, gender, graduation, skills, resumeFilename], (err, result) => {
+              if (err) {
+                  console.error("Error inserting application:", err);
+                  return res.status(500).send("Internal Server Error");
+              }
+
+              res.redirect(`/jobs/${jobId}`);
+          });
+      });
   },
 
   getApplications: (req, res) => {

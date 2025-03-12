@@ -31,8 +31,7 @@
     </div>
   </nav>
 
-  <div class="max-w-screen-xl p-4 sm:px-16 mx-auto py-10 my-28">
-    
+  <div class="max-w-screen-xl p-4 sm:px-16 mx-auto py-10 my-28">   
     <div class="bg-white shadow-md rounded-lg p-8">
       <div class="flex space-x-4 items-center my-4">
         <img 
@@ -44,6 +43,7 @@
       </div>
       <p class="text-gray-600 mb-4"><%= job.description %></p>
       <p class="text-gray-800"><strong>Company:</strong> <%= job.company %></p>
+      <p class="text-gray-800"><strong>Skills Required:</strong> <%= job.skills %></p>
       <p class="text-gray-800"><strong>Location:</strong> <%= job.location %></p>
       <% if (!hasApplied) { %>
           <a href="/apply/<%= job.id %>" class="block mt-4 bg-rose-600 text-white px-6 py-2 rounded w-fit text-start hover:bg-rose-700">

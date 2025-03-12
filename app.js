@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
+const fileUpload = require('express-fileupload');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(cookieParser());
+app.use(fileUpload());
 
 // CSRF protection
 const csrfProtection = csrf({ cookie: true });
