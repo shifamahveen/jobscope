@@ -25,6 +25,9 @@ const jobController = {
     },
 
   getCreateJob: (req, res) => {
+    if(req.session.user.role !== 'admin') {
+      res.redirect('/', { user: req.session.user });
+    }
     res.render('jobs/create', {user: req.session.user});
   },  
 
@@ -170,7 +173,41 @@ const jobController = {
 
       res.render('applications', { applications, user: req.session.user });
     });
+  },
+
+  getApplicationDetails: (req, res) => {
+      if (req.session.user.role !== 'admin') {
+          return res.redirect('/');
+      }
+
+      const applicationId = req.params.id;
+      const query = 'SELECT * FROM applications WHERE id = ?';
+
+      db.query(query, [applicationId], (err, result) => {
+          if (err) {
+              console.error('Error fetching application details:', err);
+              return res.status(500).send('Error fetching application details');
+          }
+
+          if (result.length === 0) {
+              return res.status(404).send('Application not found');
+          }
+
+          res.render('applicationDetails', { application: result[0], user: req.session.user });
+      });
+  },
+
+  downloadResume: (req, res) => {
+      const filename = req.params.filename;
+      const filePath = path.join(__dirname, '../uploads', filename);
+
+      if (fs.existsSync(filePath)) {
+          res.download(filePath, filename);
+      } else {
+          res.status(404).send('File not found');
+      }
   }
+
 };
 
 module.exports = jobController;

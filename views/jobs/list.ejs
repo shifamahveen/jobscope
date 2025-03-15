@@ -16,9 +16,12 @@
         <div class="hidden md:flex items-center space-x-4 text-lg">
             <a href="/" class="text-gray-300 hover:text-white">Home</a>
             <% if (user && user.role !== 'user') { %>  
-              <a href="/admin/applications" class="text-gray-300 hover:text-white">Admin</a>
+              <a href="/admin/applications" class="text-gray-300 hover:text-white">Applications</a>
+              <a href="/admin/" class="text-gray-300 hover:text-white">Admin</a>
+              <a href="/contacts/" class="text-gray-300 hover:text-white">Queries</a>
             <% } %>
             <a href="/profile" class="text-gray-300 hover:text-white">Profile</a>
+            <a href="/contact" class="text-gray-300 hover:text-white">Contact Us</a>
             <a href="/logout" class="text-gray-300 hover:text-white">Logout</a>
         </div>
         <div class="md:hidden">
@@ -34,9 +37,11 @@
   <div class="max-w-screen-xl px-16 p-4 mx-auto my-10">
     <div class="flex mt-10  justify-between items-center">
         <h1 class="text-2xl font-semibold my-4 mt-10">Job Listings</h1>
+        <% if (user && user.role !== 'user') { %>  
         <a href="/job/create" class="bg-green-500 text-white px-4 py-2 rounded mb-4 flex items-center space-x-2 w-fit ms-auto">
             <svg class="w-5 me-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M13 4H8.8C7.11984 4 6.27976 4 5.63803 4.32698C5.07354 4.6146 4.6146 5.07354 4.32698 5.63803C4 6.27976 4 7.11984 4 8.8V15.2C4 16.8802 4 17.7202 4.32698 18.362C4.6146 18.9265 5.07354 19.3854 5.63803 19.673C6.27976 20 7.11984 20 8.8 20H15.2C16.8802 20 17.7202 20 18.362 19.673C18.9265 19.3854 19.3854 18.9265 19.673 18.362C20 17.7202 20 16.8802 20 15.2V11" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M4 16L8.29289 11.7071C8.68342 11.3166 9.31658 11.3166 9.70711 11.7071L13 15M13 15L15.7929 12.2071C16.1834 11.8166 16.8166 11.8166 17.2071 12.2071L20 15M13 15L15.25 17.25" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M18.5 3V5.5M18.5 8V5.5M18.5 5.5H16M18.5 5.5H21" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
             Create Job</a>
+          <% } %>
     </div>
 
     <!-- Search Bar -->
@@ -50,8 +55,8 @@
         >
     </div>
     
-    <div class="flex space-x-10 mb-10">
-      <div class="w-[80vww] bg-white p-4 rounded">
+    <div class="flex space-x-8 mb-10">
+      <div class="w-[55vww] bg-white p-4 rounded">
         <h2 class="text-2xl font-semibold text-gray-800 mb-6">Available Jobs</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="jobsContainer">
           <% jobs.forEach((job) => { %>
@@ -80,8 +85,10 @@
         </div>
       </div>
     
-      <div class="w-[20vw] bg-white p-4 rounded">
+      
+      <div class="w-[40vw] bg-white p-4 rounded">
         <h2 class="text-lg font-semibold text-gray-800 mb-6">Recommended Jobs for You</h2>
+        <% if(recommendedJobs.count > 0) { %>
           <% recommendedJobs.forEach((job) => { %>
             <div class="job-card bg-white shadow-md rounded-lg overflow-hidden my-4">
               <div class="flex items-center justify-between space-x-4 bg-gray-200 p-4">
@@ -104,7 +111,11 @@
               </div>
             </div>
           <% }); %>
+        <% } else { %>
+          <p class="text-sm text-gray-500 italic py-2">No Recommendations :)</p>
+        <% } %>
       </div>
+      
     </div>    
     
   </div>

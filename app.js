@@ -5,7 +5,9 @@ const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 const fileUpload = require('express-fileupload');
+const path = require('path');
 
 const app = express();
 
@@ -16,6 +18,7 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser());
 app.use(fileUpload());
 
@@ -49,6 +52,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', authRoutes);
 app.use('/', jobRoutes);
+app.use('/', contactRoutes);
 
 // Start the server
 app.listen(3000, () => {

@@ -13,7 +13,15 @@ const getRecommendedJobs = async () => {
   try {
     const response = await fetch(url, options);
     const result = await response.json();
-    return result.slice(0, 3).map(job => ({
+    
+    console.log('API Response:', result); // Log the full response
+
+    if (!Array.isArray(result.jobs)) {
+      console.error('Invalid response format:', result);
+      return [];
+    }
+
+    return result.jobs.slice(0, 3).map(job => ({
       id: job.id,
       title: job.title,
       company: job.organization,

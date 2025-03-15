@@ -15,5 +15,7 @@ router.post('/jobs/create', ensureAuthenticated, jobController.createJob);
 router.get('/jobs/edit/:id', ensureAuthenticated, jobController.getEditJob);
 router.post('/jobs/edit/:id', ensureAuthenticated, jobController.updateJob);
 router.post('/jobs/delete/:id', ensureAuthenticated, jobController.deleteJob);
+router.get('/applications/:id', ensureAuthenticated, jobController.getApplicationDetails);
+router.get('/download/:filename', ensureAuthenticated, jobController.downloadResume);
 
 module.exports = router;

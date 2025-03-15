@@ -16,9 +16,12 @@
         <div class="hidden md:flex items-center space-x-4 text-lg">
             <a href="/" class="text-gray-300 hover:text-white">Home</a>
             <% if (user && user.role !== 'user') { %>  
-              <a href="/admin/applications" class="text-gray-300 hover:text-white">Admin</a>
+              <a href="/admin/applications" class="text-gray-300 hover:text-white">Applications</a>
+              <a href="/admin/" class="text-gray-300 hover:text-white">Admin</a>
+              <a href="/contacts/" class="text-gray-300 hover:text-white">Queries</a>
             <% } %>
             <a href="/profile" class="text-gray-300 hover:text-white">Profile</a>
+            <a href="/contact" class="text-gray-300 hover:text-white">Contact Us</a>
             <a href="/logout" class="text-gray-300 hover:text-white">Logout</a>
         </div>
         <div class="md:hidden">
@@ -32,7 +35,7 @@
   </nav>
 
   <div class="max-w-screen-xl p-4 sm:px-12 mx-auto py-10 my-20">
-    <div class=" bg-white rounded p-8 shadow">
+    <div class=" bg-white rounded p-8 shadow mx-4">
 
       <h1 class="text-3xl font-semibold text-center mb-8">All Job Applications</h1>
       <table class="min-w-full table-auto mb-10">
@@ -57,7 +60,11 @@
                   <%= application.jobId %>
                 </a>
               </td>
-              <td class="px-4 py-2 border"><%= application.userName %></td>
+              <td class="px-4 py-2 border">
+                <a href="/applications/<%= application.id %>" class="text-blue-500 hover:underline">
+                    <%= application.userName %>
+                </a>
+            </td>
               <td class="px-4 py-2 border"><%= application.userEmail %></td>
               <td class="px-4 py-2 border"><%= application.phone %></td>
               <td class="px-4 py-2 border"><%= application.gender %></td>

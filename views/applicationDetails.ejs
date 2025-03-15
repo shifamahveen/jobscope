@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Jobs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <nav class="bg-teal-800 p-4 py-2 fixed z-0 w-full mb-40 top-0">
+    <div class="max-w-screen-xl p-2 sm:px-16 mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <a href="/" class="text-white text-lg font-semibold flex items-center bg-white p-2 space-x-2 rounded">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkXihGXJM9cuLB9CJ0utK5kqx9YctTG9Zju7mlX9XrOaaNfUphxrnSXOcxvwZQNoc7fK4&usqp=CAU" width="30px" alt="">
+            <span class="text-black text-lg">JobScope</span>
+        </a>
+        </div>
+        <div class="hidden md:flex items-center space-x-4 text-lg">
+            <a href="/" class="text-gray-300 hover:text-white">Home</a>
+            <% if (user && user.role !== 'user') { %>  
+              <a href="/admin/applications" class="text-gray-300 hover:text-white">Applications</a>
+              <a href="/admin/" class="text-gray-300 hover:text-white">Admin</a>
+              <a href="/contacts/" class="text-gray-300 hover:text-white">Queries</a>
+            <% } %>
+            <a href="/profile" class="text-gray-300 hover:text-white">Profile</a>
+            <a href="/contact" class="text-gray-300 hover:text-white">Contact Us</a>
+            <a href="/logout" class="text-gray-300 hover:text-white">Logout</a>
+        </div>
+        <div class="md:hidden">
+            <button id="menu-toggle" class="text-gray-300 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+  </nav>
+
+  <div class="max-w-screen-xl p-4 sm:px-12 mx-auto py-10 my-20 ">
+    <div class="p-8 bg-white rounded mx-4">
+      <h2 class="text-2xl font-semibold mb-4">Application Details</h2>
+  
+      <div class="grid grid-cols-2 gap-4">
+          <p><span class="font-semibold">Job ID:</span> <%= application.jobId %></p>
+          <p><span class="font-semibold">Name:</span> <%= application.userName %></p>
+          <p><span class="font-semibold">Email:</span> <%= application.userEmail %></p>
+          <p><span class="font-semibold">Phone:</span> <%= application.phone %></p>
+          <p><span class="font-semibold">Gender:</span> <%= application.gender %></p>
+          <p><span class="font-semibold">Graduation:</span> <%= application.graduation %></p>
+          <p><span class="font-semibold">Skills:</span> <%= application.skills %></p>
+          <p><span class="font-semibold">Applied At:</span> <%= application.createdAt %></p>
+      </div>
+  
+      <div class="mt-6 mx-auto text-center">
+        <% if (application.resume) { %>
+            <a href="/uploads/<%= application.resume %>" target="_blank" class="px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-700 duration-300 inline-flex space-x-1 items-center">
+              <span>View Resume</span> 
+              <svg class="w-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" transform="matrix(-1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M8.70714 13.2929L3.41424 8.00001L8.70714 2.70712L7.29292 1.29291L0.585815 8.00001L7.29292 14.7071L8.70714 13.2929Z" fill="#fff"></path> <path d="M15.2071 13.2929L9.91424 8.00001L15.2071 2.70712L13.7929 1.29291L7.08582 8.00001L13.7929 14.7071L15.2071 13.2929Z" fill="#fff"></path> </g></svg>
+            </a>
+            <a href="/download/<%= application.resume %>" class="ml-4 px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-700 duration-300 inline-flex space-x-1 items-center">
+              <span>Download Resume</span>
+                
+                <svg class="w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+            </a>
+        <% } else { %>
+            <p class="text-red-500">Resume not uploaded.</p>
+        <% } %>
+    </div>
+    
+    </div>
+      
+  </div>
+
+  <footer class="bg-teal-800 p-4 fixed z-0 w-full bottom-0 text-white text-lg text-center mt-20">
+    &#169; JobScope
+  </footer>  
+</body>
+</html>

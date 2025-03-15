@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= user.name %></title>
+  <title>Contact Us</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="shortcut icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAQHwjXyAiIxUCnh3-cFywq0K4ZmDFo20YAw&s">
-
 </head>
-<body class="bg-gray-100 text-white">
+<body class="bg-gray-100">
+
+  <!-- Navbar -->
   <nav class="bg-teal-800 p-4 py-2 fixed z-0 w-full mb-40 top-0">
     <div class="max-w-screen-xl p-2 sm:px-16 mx-auto flex justify-between items-center">
         <div class="flex items-center space-x-4">
@@ -37,27 +37,35 @@
         </div>
     </div>
   </nav>
-  
-  <!-- Profile Section -->
-  <section class="max-w-screen-xl px-16 py-8 mx-auto mt-20">
-    <div class="w-1/2 mx-auto bg-white shadow-md rounded-lg p-8 flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-semibold mb-6 text-gray-800">User Profile</h1>
-        <ul class="font-semibold text-gray-800">
-          <li><span>Email:</span> <%= user.email %></li>
-          <li><span class="">Phone:</span> <%= user.phone %></li>
-          <li><span class="">Role:</span> <%= user.role %></li>
-          <li><span class="">Gender:</span> <%= user.gender %></li>
-          <li><span class="">Location:</span> <%= user.location %></li>
-        </ul>
-      </div>
-    
+
+  <!-- Contact Form Section -->
+  <section class="max-w-screen-xl px-16 mx-auto py-12 my-20">
+    <div class="bg-white shadow-md rounded-lg p-8">
+      <h1 class="text-2xl font-semibold mb-4">Contact Queries</h1>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-teal-800 text-white">
+            <th class="border p-2">ID</th>
+            <th class="border p-2">Name</th>
+            <th class="border p-2">Email</th>
+            <th class="border p-2">Message</th>
+            <th class="border p-2">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% contacts.forEach((contact, k) => { %>
+            <tr class="border bg-gray-100 text-black">
+              <td class="p-2"><%= ++k %></td>
+              <td class="p-2"><%= contact.name %></td>
+              <td class="p-2"><%= contact.email %></td>
+              <td class="p-2"><%= contact.message %></td>
+              <td class="p-2"><%= new Date(contact.created_at).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
     </div>
-    <a href="/" class="w-1/2 mx-auto block mt-6 bg-teal-600 text-white hover:bg-teal-700 duration-300 px-8 py-2 rounded text-center">Back to Home</a>
   </section>
 
-  <footer class="bg-teal-800 p-4 fixed z-0 w-full bottom-0 text-white text-lg text-center ">
-    &#169; JobScope
-  </footer>
 </body>
 </html>
