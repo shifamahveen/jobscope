@@ -78,6 +78,15 @@ CREATE TABLE users (
     gender VARCHAR(20) NULL,  
     role VARCHAR(20) DEFAULT 'user'  
 );
+
+-- Create the 'contacts' table
+CREATE TABLE contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ### 4️⃣ Start the Server  
