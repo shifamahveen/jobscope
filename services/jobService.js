@@ -1,35 +1,37 @@
 const fetch = require('node-fetch');
 
 const getRecommendedJobs = async () => {
-  const url = 'https://linkedin-job-search-api.p.rapidapi.com/active-jb-24h';
+  const url = 'https://jsearch.p.rapidapi.com/estimated-salary?job_title=nodejs%20developer&location=india&location_type=ANY&years_of_experience=ALL';
   const options = {
     method: 'GET',
     headers: {
       'x-rapidapi-key': 'ea86ec0756msh17e532df1e1c9c9p170c20jsnebad0933d91c',
-      'x-rapidapi-host': 'linkedin-job-search-api.p.rapidapi.com'
+      'x-rapidapi-host': 'jsearch.p.rapidapi.com'
     }
   };
 
   try {
     const response = await fetch(url, options);
     const result = await response.json();
-    
-    console.log('API Response:', result); // Log the full response
 
-    if (!Array.isArray(result.jobs)) {
-      console.error('Invalid response format:', result);
+    if (!Array.isArray(result.data) || result.data.length === 0) {
+      console.error('Invalid or empty response:', result);
       return [];
     }
 
-    return result.jobs.slice(0, 3).map(job => ({
-      id: job.id,
-      title: job.title,
-      company: job.organization,
-      url: job.url,
-      logo: job.organization_logo
+    return result.data.map(salary => ({
+      job_title: salary.job_title,
+      location: salary.location,
+      min_salary: salary.min_salary,
+      max_salary: salary.max_salary,
+      median_salary: salary.median_salary,
+      currency: salary.salary_currency,
+      salary_period: salary.salary_period,
+      publisher_name: salary.publisher_name,
+      publisher_link: salary.publisher_link
     }));
   } catch (error) {
-    console.error('Error fetching recommended jobs:', error);
+    console.error('Error fetching salary estimates:', error);
     return [];
   }
 };

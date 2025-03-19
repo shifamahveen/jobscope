@@ -55,7 +55,7 @@
         >
     </div>
     
-    <div class="flex space-x-8 mb-10">
+    <div class="flex space-x-4 mb-10">
       <div class="w-[55vww] bg-white p-4 rounded">
         <h2 class="text-2xl font-semibold text-gray-800 mb-6">Available Jobs</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="jobsContainer">
@@ -85,36 +85,34 @@
         </div>
       </div>
     
-      
-      <div class="w-[40vw] bg-white p-4 rounded">
-        <h2 class="text-lg font-semibold text-gray-800 mb-6">Recommended Jobs for You</h2>
-        <% if(recommendedJobs.count > 0) { %>
-          <% recommendedJobs.forEach((job) => { %>
+      <div class="w-[45vw] bg-white p-4 rounded">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Recommended Jobs</h2>
+        <% if (recommendedJobs.length > 0) { %>
+          <% recommendedJobs.forEach((salary) => { %>
             <div class="job-card bg-white shadow-md rounded-lg overflow-hidden my-4">
               <div class="flex items-center justify-between space-x-4 bg-gray-200 p-4">
-                <div class="flex space-x-2 items-center">
-                  <img 
-                    src="<%= job.organization_logo || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0X2Q3ryxWPnu2SSVJOrQEzpLaWclFYYOoBA&s' %>" 
-                    alt="<%= job.title %>" 
-                    class="w-6 h-6 p-2 rounded-full shadow bg-white"
-                  >
-                  <h2 class="font-semibold truncate"><%= job.title %></h2>
-                </div>
+                <h2 class="font-semibold truncate"><%= salary.job_title %></h2>
               </div>
-              <p class="text-xs text-gray-500 mt-2 px-6 py-4">
-                <%= job.organization %> - <%= job.linkedin_org_industry || 'Industry not specified' %>
+              <p class="text-gray-500 px-4 py-2">
+                <span class="font-semibold"> Salary Range:</span>
+                <%= salary.min_salary.toFixed(2) %> - <%= salary.max_salary.toFixed(2) %> <%= salary.currency %> per <%= salary.salary_period.toLowerCase() %>
               </p>
-              <div class="mt-2 px-4 py-2">
-                <p class="text-gray-700 font-semibold">Company: <%= job.organization %></p>
-                <p class="text-gray-700 font-semibold">Location: <%= job.linkedin_org_headquarters || 'Not specified' %></p>
-                <a href="<%= job.url %>" target="_blank" class="block my-4 bg-blue-600 text-white px-6 py-2 rounded w-fit text-start hover:bg-blue-700">View Job</a>
+              <p class="text-gray-500 px-4 py-2">
+                <span class="font-semibold">Job Location:</span>
+                 <%= salary.location %>
+              </p>
+              <div class="px-4 py-2">
+                <p class="text-gray-700"><span class="font-semibold">Median Salary:</span> <%= salary.median_salary.toFixed(2) %> <%= salary.currency %></p>
+                <p class="text-gray-700 text-sm">Source: <%= salary.publisher_name %></p>
+                <a href="<%= salary.publisher_link %>" target="_blank" class="block my-4 bg-blue-600 text-white px-6 py-2 rounded w-fit text-start hover:bg-blue-700">View Source</a>
               </div>
             </div>
           <% }); %>
         <% } else { %>
-          <p class="text-sm text-gray-500 italic py-2">No Recommendations :)</p>
+          <p class="text-sm text-gray-500 italic py-2">No Recommended Job :)</p>
         <% } %>
       </div>
+      
       
     </div>    
     

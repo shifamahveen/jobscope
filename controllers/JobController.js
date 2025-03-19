@@ -15,6 +15,7 @@ const jobController = {
   
           try {
             const recommendedJobs = await getRecommendedJobs();
+            
             res.render('jobs/list', { jobs, recommendedJobs, user: req.session.user });
           } catch (error) {
             console.error('Error fetching recommended jobs:', error);
