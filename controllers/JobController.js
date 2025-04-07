@@ -13,17 +13,42 @@ const jobController = {
             return res.status(500).send('Error fetching jobs');
           }
   
-          try {
-            const recommendedJobs = await getRecommendedJobs();
-            
-            res.render('jobs/list', { jobs, recommendedJobs, user: req.session.user });
-          } catch (error) {
-            console.error('Error fetching recommended jobs:', error);
-            res.render('jobs/list', { jobs, recommendedJobs: [], user: req.session.user });
-          }
+          res.render('jobs/list', { jobs, user: req.session.user });
         }
       );
     },
+
+    getRecommendations: (req, res) => {
+      const skill = req.query.skill;
+      if (!skill) return res.json([]);
+    
+      const query = "SELECT * FROM jobs WHERE FIND_IN_SET(?, skills)";
+      db.query(query, [skill], (err, results) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json([]);
+        }
+        res.json(results);
+      });
+    },
+
+    searchBySkill: async (req, res) => {
+      const { skill } = req.query;
+      if (!skill) return res.json([]);
+    
+      try {
+        const keyword = `%${skill.toLowerCase()}%`;
+        const rows = await db.query(
+          "SELECT * FROM jobs WHERE LOWER(skills) LIKE ?",
+          [keyword]
+        );
+    
+        res.json(rows);
+      } catch (err) {
+        console.error('Search error:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    },    
 
   getCreateJob: (req, res) => {
     if(req.session.user.role !== 'admin') {

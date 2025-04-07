@@ -18,4 +18,7 @@ router.post('/jobs/delete/:id', ensureAuthenticated, jobController.deleteJob);
 router.get('/applications/:id', ensureAuthenticated, jobController.getApplicationDetails);
 router.get('/download/:filename', ensureAuthenticated, jobController.downloadResume);
 
+router.get('/recommendations', ensureAuthenticated, jobController.getRecommendations);
+router.get('/search', jobController.searchBySkill);
+
 module.exports = router;
