@@ -1,22 +1,45 @@
 const db = require('../config/db');  
 const path = require('path');
 const fs = require('fs'); 
-const { getRecommendedJobs } = require('../services/jobService');
+const axios = require('axios');
 
 const jobController = {
-    getJobs: (req, res) => {
+
+  getJobs: async (req, res) => {
+    try {
+      const apiUrl = 'https://google-jobs-api.p.rapidapi.com/google-jobs/job-type?jobType=Full-time&include=Developer&location=India';
+      const options = {
+        method: 'GET',
+        url: apiUrl,
+        headers: {
+          'x-rapidapi-key': 'ea86ec0756msh17e532df1e1c9c9p170c20jsnebad0933d91c',
+          'x-rapidapi-host': 'google-jobs-api.p.rapidapi.com'
+        }
+      };
+  
+      const apiResponse = await axios.request(options);
+      const apiJobs = apiResponse.data.jobs || [];
+  
       db.query(
         'SELECT id, title, description, image, salary, location, company FROM jobs ORDER BY created_at DESC',
-        async (err, jobs) => {
+        (err, jobs) => {
           if (err) {
             console.error('Error fetching jobs:', err);
             return res.status(500).send('Error fetching jobs');
           }
   
-          res.render('jobs/list', { jobs, user: req.session.user });
+          res.render('jobs/list', {
+            jobs,
+            apiJobs,
+            user: req.session.user
+          });
         }
       );
-    },
+    } catch (error) {
+      console.error('Error fetching API jobs:', error);
+      res.status(500).send('Error fetching jobs');
+    }
+  },  
 
     getRecommendations: (req, res) => {
       const skill = req.query.skill;
